@@ -2,4 +2,4 @@ discord~=1.7.3
 
 requests~=2.26.0
 
-dotenv
+python-dotenv~=0.19.2

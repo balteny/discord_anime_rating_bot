@@ -34,6 +34,7 @@ def get_score(animes, anime_id):
         if int(anime["mal_id"]) == int(anime_id):
             return anime["score"]
 
+
 def check_data(animes, anime_id, user_id, current_page):
     if check_anime_included(anime_id, animes):
         print("Found anime for " + user_id)
@@ -42,7 +43,6 @@ def check_data(animes, anime_id, user_id, current_page):
     if len(animes) == 300:
         # die API liefert max 300 Einträge pro Seite zurück
         print("Getting data from page: " + str(current_page + 1))
-
         return check_data(get_mal_page(user_id, current_page + 1), anime_id, user_id, current_page + 1)
 
     print("Did not found Anime: " + anime_id + " for user: " + user_id)
