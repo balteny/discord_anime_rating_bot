@@ -29,13 +29,15 @@ def check_anime_included(anime_id, animes):
     return any(int(anime["mal_id"]) == int(anime_id) for anime in animes)
 
 
+def get_score(animes, anime_id):
+    for anime in animes:
+        if int(anime["mal_id"]) == int(anime_id):
+            return anime["score"]
+
 def check_data(animes, anime_id, user_id, current_page):
     if check_anime_included(anime_id, animes):
         print("Found anime for " + user_id)
-        for anime in animes:
-            if int(anime["mal_id"]) == int(anime_id):
-                return anime["score"]
-                break
+        return get_score(animes, anime_id)
 
     if len(animes) == 300:
         # die API liefert max 300 Einträge pro Seite zurück
