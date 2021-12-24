@@ -57,17 +57,21 @@ class CustomClient(discord.Client):
         if message.author == client.user:
             return
 
-        if mal_url in message.content:
-            # https://myanimelist.net/anime/<mal_id>/<anime_name>
-            # id ab stelle 30
-            anime_id = message.content[30:message.content.find('/', 30)]
-            print("Anime id: " + anime_id)
-            for user in load_users():
-                score = check_data(get_mal_page(user["user_id"], 1), anime_id, user["user_id"], 1)
-                if score == -1:
-                    await message.channel.send(user["username"] + ' hat diesen Anime noch nicht bewertet.')
-                else:
-                    await message.channel.send(user["username"] + ': ' + str(score))
+        if message.content.startswith('!rate'):
+            if mal_url in message.content:
+                # https://myanimelist.net/anime/<mal_id>/<anime_name>
+                # id ab stelle 30
+                anime_id = message.content[36:message.content.find('/', 36)]
+                print("Anime id: " + anime_id)
+                for user in load_users():
+                    score = check_data(get_mal_page(user["user_id"], 1), anime_id, user["user_id"], 1)
+                    if score == -1:
+                        await message.channel.send(user["username"] + ' hat diesen Anime noch nicht bewertet.')
+                    else:
+                        await message.channel.send(user["username"] + ': ' + str(score))
+                return
+            if 'help' in message.content:
+                await message.channel.send('Dieser Bot holt sich die jeweiligen Bewertungen von einem Anime heran, welchen man auf MyAnimeList bewertet hat.\nDafür einfach "!rate https://myanimelist.net/anime/<mal_id>/<anime_name>" schreiben.')
 
 
 if __name__ == '__main__':
