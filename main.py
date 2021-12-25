@@ -60,7 +60,7 @@ class CustomClient(discord.Client):
         if message.content.startswith('!rate'):
             if mal_url in message.content:
                 # https://myanimelist.net/anime/<mal_id>/<anime_name>
-                # id ab stelle 30
+                # id ab stelle 30 der url
                 anime_id = message.content[36:message.content.find('/', 36)]
                 print("Anime id: " + anime_id)
                 for user in load_users():
@@ -72,6 +72,23 @@ class CustomClient(discord.Client):
                 return
             if 'help' in message.content:
                 await message.channel.send('Dieser Bot holt sich die jeweiligen Bewertungen von einem Anime heran, welchen man auf MyAnimeList bewertet hat.\nDafür einfach "!rate https://myanimelist.net/anime/<mal_id>/<anime_name>" schreiben.')
+        if message.content.startswith('!addUser'):
+            print("add user")
+            # wie muss message aussehen?
+            # maybe mal check?
+            # get users.json content
+            # write new entry to content 
+            # save file 
+            # send message if user was sucessfully added
+        if message.content.startswith('!deleteUser'):
+            print("delete user")
+            # delete auf username oder auf user_id?
+            # get users.json content
+            # find entry
+            # delete entry 
+            # write new content to file
+            # send message if sucessfully deleted
+
 
 
 if __name__ == '__main__':
