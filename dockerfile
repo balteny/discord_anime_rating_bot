@@ -1,6 +1,7 @@
 FROM python:3.10
 WORKDIR /app
-COPY . .
+COPY main.py main.py
+COPY requirements.txt requirements.txt
 RUN pip install -r ./requirements.txt
-ENV DISCORD_TOKEN=<TOKEN>
+VOLUME /app/config
 CMD python3 main.py

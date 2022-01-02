@@ -1,12 +1,6 @@
-import os
 import discord
 import requests
-from dotenv import load_dotenv
 import json
-
-
-load_dotenv()
-BOT_TOKEN = os.getenv('DISCORD_TOKEN')
 
 mal_url = 'myanimelist.net'
 
@@ -14,8 +8,13 @@ anisearch_url = 'anisearch.de'
 
 mal_api_url = 'https://api.jikan.moe/v3'
 
+def load_config():
+    with open('./config/config.json') as file:
+        d = json.load(file)
+        return d["discord_token"]
+
 def load_users():
-    with open('users.json') as file:
+    with open('./config/users.json') as file:
         d = json.load(file)
         print(d["users"])
         return d["users"]
@@ -93,4 +92,4 @@ class CustomClient(discord.Client):
 
 if __name__ == '__main__':
     client = CustomClient()
-    client.run(BOT_TOKEN)
+    client.run(load_config())
