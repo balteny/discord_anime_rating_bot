@@ -1,50 +1,59 @@
+from discord.ext import commands
 import discord
-import requests
+from mal import get_mal_page, get_more_mal_page, Mal_response, Anime
+from typing import List
 import json
+
 
 mal_url = 'myanimelist.net'
 
 anisearch_url = 'anisearch.de'
 
-mal_api_url = 'https://api.jikan.moe/v3'
 
-def load_config():
+class User:
+    def __init__(self, user_id: str, name: str):
+        self.user_id = user_id
+        self.name = name
+
+class Users:
+    def __init__(self, users: List[User]):
+        self.users = users
+
+def get_ds_token():
     with open('./config/config.json') as file:
         d = json.load(file)
         return d["discord_token"]
 
+
 def load_users():
     with open('./config/users.json') as file:
         d = json.load(file)
-        print(d["users"])
+        print('loaded following users {}'.format(d["users"]))
         return d["users"]
 
-def get_mal_page(user_id, page):
-    r = requests.get(mal_api_url + '/user/' + str(user_id) + '/animelist/completed/' + str(page))
-    return r.json()["anime"]
+
+def check_anime_included(anime_id: int, animes: List[Anime]):
+    return any(int(anime["node"]["id"]) == int(anime_id) for anime in animes)
 
 
-def check_anime_included(anime_id, animes):
-    return any(int(anime["mal_id"]) == int(anime_id) for anime in animes)
-
-
-def get_score(animes, anime_id):
+def get_score(animes: List[Anime], anime_id: int):
     for anime in animes:
-        if int(anime["mal_id"]) == int(anime_id):
-            return anime["score"]
+        if int(anime["node"]["id"]) == int(anime_id):
+            return int(anime["list_status"]["score"])
 
 
-def check_data(animes, anime_id, user_id, current_page):
+def check_data(mal_response: Mal_response, anime_id: int, user_id: str):
+    animes: List[Anime] = mal_response.data
     if check_anime_included(anime_id, animes):
         print("Found anime for " + user_id)
         return get_score(animes, anime_id)
 
     if len(animes) == 300:
         # die API liefert max 300 Einträge pro Seite zurück
-        print("Getting data from page: " + str(current_page + 1))
-        return check_data(get_mal_page(user_id, current_page + 1), anime_id, user_id, current_page + 1)
+        print("Getting data from page: " + mal_response.paging["next"])
+        return check_data(get_more_mal_page(mal_response.paging["next"]), anime_id, user_id)
 
-    print("Did not found Anime: " + anime_id + " for user: " + user_id)
+    print("Did not found Anime: " + str(anime_id) + " for user: " + user_id)
     return -1
 
 
@@ -63,7 +72,7 @@ class CustomClient(discord.Client):
                 anime_id = message.content[36:message.content.find('/', 36)]
                 print("Anime id: " + anime_id)
                 for user in load_users():
-                    score = check_data(get_mal_page(user["user_id"], 1), anime_id, user["user_id"], 1)
+                    score = check_data(get_mal_page(user["user_id"]), int(anime_id), user["user_id"])
                     if score == -1:
                         await message.channel.send(user["username"] + ' hat diesen Anime noch nicht bewertet.')
                     else:
@@ -75,21 +84,16 @@ class CustomClient(discord.Client):
             print("add user")
             # wie muss message aussehen?
             # maybe mal check?
-            # get users.json content
-            # write new entry to content 
-            # save file 
+            # via db (slqlight) adden
             # send message if user was sucessfully added
         if message.content.startswith('!deleteUser'):
             print("delete user")
             # delete auf username oder auf user_id?
-            # get users.json content
-            # find entry
-            # delete entry 
-            # write new content to file
+            # via db deleten
             # send message if sucessfully deleted
 
 
 
 if __name__ == '__main__':
     client = CustomClient()
-    client.run(load_config())
+    client.run(get_ds_token())
