@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import context
 from mal import get_mal_page, get_more_mal_page, Mal_response, Anime
 from typing import List
 import json
@@ -51,7 +52,7 @@ def check_data(mal_response: Mal_response, anime_id: int, user_id: str):
 
 
 @bot.command(name='rate', help='Rate an anime from myanimelist.net')
-async def anime_rating(ctx):
+async def anime_rating(ctx: context):
     print(ctx.message.content)
     if ctx.author == bot.user:
         return
