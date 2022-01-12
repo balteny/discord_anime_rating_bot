@@ -1,5 +1,4 @@
 from discord.ext import commands
-import discord
 from mal import get_mal_page, get_more_mal_page, Mal_response, Anime
 from typing import List
 import json
@@ -8,6 +7,9 @@ import json
 mal_url = 'myanimelist.net'
 
 anisearch_url = 'anisearch.de'
+
+
+bot = commands.Bot(command_prefix="!")
 
 
 def get_ds_token():
@@ -48,43 +50,33 @@ def check_data(mal_response: Mal_response, anime_id: int, user_id: str):
     return -1
 
 
-class CustomClient(discord.Client):
-    async def on_ready(self):
-        print(f'{client.user} has connected to Discord!')
+@bot.command(name='rate', help='Rate an anime from myanimelist.net')
+async def anime_rating(ctx):
+    print(ctx.message.content)
+    if ctx.author == bot.user:
+        return
 
-    async def on_message(self, message):
-        if message.author == client.user:
+    if ctx.message.content.startswith('!rate'):
+        if mal_url in ctx.message.content:
+            # https://myanimelist.net/anime/<mal_id>/<anime_name>
+            # id ab stelle 30 der url
+            anime_id = ctx.message.content[36:ctx.message.content.find('/', 36)]
+            print("Anime id: " + anime_id)
+            for user in load_users():
+                score = check_data(get_mal_page(user["user_id"]), int(anime_id), user["user_id"])
+                if score == -1:
+                    await ctx.channel.send(user["username"] + ' hat diesen Anime noch nicht bewertet.')
+                else:
+                    await ctx.channel.send(user["username"] + ': ' + str(score))
             return
 
-        if message.content.startswith('!rate'):
-            if mal_url in message.content:
-                # https://myanimelist.net/anime/<mal_id>/<anime_name>
-                # id ab stelle 30 der url
-                anime_id = message.content[36:message.content.find('/', 36)]
-                print("Anime id: " + anime_id)
-                for user in load_users():
-                    score = check_data(get_mal_page(user["user_id"]), int(anime_id), user["user_id"])
-                    if score == -1:
-                        await message.channel.send(user["username"] + ' hat diesen Anime noch nicht bewertet.')
-                    else:
-                        await message.channel.send(user["username"] + ': ' + str(score))
-                return
-            if 'help' in message.content:
-                await message.channel.send('Dieser Bot holt sich die jeweiligen Bewertungen von einem Anime heran, welchen man auf MyAnimeList bewertet hat.\nDafür einfach "!rate https://myanimelist.net/anime/<mal_id>/<anime_name>" schreiben.')
-        if message.content.startswith('!addUser'):
-            print("add user")
-            # wie muss message aussehen?
-            # maybe mal check?
-            # via db (slqlight) adden
-            # send message if user was sucessfully added
-        if message.content.startswith('!deleteUser'):
-            print("delete user")
-            # delete auf username oder auf user_id?
-            # via db deleten
-            # send message if sucessfully deleted
+
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print('------')
 
 
-client = CustomClient()
-
-def runClient():
-    client.run(get_ds_token())
+def runBot():
+    bot.run(get_ds_token())

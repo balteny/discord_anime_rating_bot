@@ -1,5 +1,5 @@
 from typing import List
-from bot import runClient
+from bot import runBot
 
 class User:
     def __init__(self, user_id: str, name: str):
@@ -11,4 +11,4 @@ class Users:
         self.users = users
 
 if __name__ == '__main__':
-    runClient()
+    runBot()
