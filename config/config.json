@@ -1,4 +1,5 @@
 {
     "discord_token": "<DISCORD_TOKEN>",
-    "mal_token": "<MAL_CLIENT_TOKEN>"
+    "mal_token": "<MAL_CLIENT_TOKEN>",
+    "db_path": "<DB_PATH>"
 }
